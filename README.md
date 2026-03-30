@@ -210,16 +210,6 @@ Coverage → Plan → Customer → Summary → Submit
 
 ---
 
-# 🧪 Future Improvements
-
-* Add REST API layer
-* Convert frontend to React
-* Add authentication
-* Admin UI for managing pricing & areas
-* Unit tests for service layer
-
----
-
 # ✅ Submission Output
 
 After submission:
