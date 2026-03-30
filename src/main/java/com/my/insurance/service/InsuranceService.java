@@ -8,6 +8,7 @@ import com.my.insurance.repository.CustomerRepository;
 import com.my.insurance.repository.PolicyRepository;
 import org.springframework.stereotype.Service;
 import com.my.insurance.util.NricUtil;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InsuranceService {
@@ -25,6 +26,7 @@ public class InsuranceService {
         this.pricingService = pr;
     }
 
+    @Transactional
     public InsuranceResponse purchase(InsuranceRequest req) {
 
         validationService.validate(req);
@@ -38,15 +40,16 @@ public class InsuranceService {
         customer.setAddress2(req.getAddress2());
         customer.setPostcode(req.getPostcode());
 
-        customer.setDateOfBirth(NricUtil.extractDob(req.getNric()).toString());
+        var dob = NricUtil.extractDob(req.getNric());
+        customer.setDateOfBirth(dob != null ? dob.toString() : null);
         customer.setGender(NricUtil.extractGender(req.getNric()));
 
         customerRepo.save(customer);
 
         double price = pricingService.calculate(
                 req.getPlan(),
-                req.getArea(),
                 req.getCoverageType(),
+                req.getArea(),
                 req.getStartDate(),
                 req.getEndDate()
         );
@@ -62,6 +65,6 @@ public class InsuranceService {
 
         policyRepo.save(policy);
 
-        return new InsuranceResponse(policy.getId(), price, "Success");
+        return new InsuranceResponse(policy.getId(), price, "Application submitted successfully");
     }
 }

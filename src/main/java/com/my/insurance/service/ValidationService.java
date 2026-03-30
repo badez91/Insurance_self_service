@@ -38,5 +38,42 @@ public class ValidationService {
             if (days > 180)
                 throw new CustomExceptionHandler("Max 180 days");
         }
+
+    }
+    public void validateDates(LocalDate start, LocalDate end, String coverageType) {
+
+        if (start == null || end == null) {
+            throw new CustomExceptionHandler("Start date and End date are required");
+        }
+
+        // ❗ Main rule
+        if (start.isAfter(end)) {
+            throw new CustomExceptionHandler("Start date cannot be after End date");
+        }
+
+        // Optional: no past date
+        if (start.isBefore(LocalDate.now())) {
+            throw new CustomExceptionHandler("Start date cannot be in the past");
+        }
+
+        // Rule: max 1 year ahead
+        if (start.isAfter(LocalDate.now().plusYears(1))) {
+            throw new CustomExceptionHandler("Start date cannot exceed 1 year from today");
+        }
+
+        // Rule: Single Trip max 180 days
+        if ("SINGLE".equals(coverageType)) {
+            long days = ChronoUnit.DAYS.between(start, end);
+            if (days > 180) {
+                throw new CustomExceptionHandler("Single trip cannot exceed 180 days");
+            }
+        }
+
+        // Rule: Annual → auto enforce 1 year
+        if ("ANNUAL".equals(coverageType)) {
+            if (!end.equals(start.plusYears(1).minusDays(1))) {
+                throw new CustomExceptionHandler("Annual coverage must be exactly 1 year");
+            }
+        }
     }
 }

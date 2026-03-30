@@ -80,6 +80,22 @@
         const alert = document.querySelector('.alert');
         if (alert) alert.style.display = 'none';
     }, 4000);
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const start = document.querySelector("input[name='startDate']");
+        const end = document.querySelector("input[name='endDate']");
+
+        function validateDate() {
+            if (start.value && end.value && start.value > end.value) {
+                alert("Start date cannot be after End date");
+                end.value = "";
+            }
+        }
+
+        start.addEventListener("change", validateDate);
+        end.addEventListener("change", validateDate);
+    });
 </script>
 
 <body class="container mt-5">
