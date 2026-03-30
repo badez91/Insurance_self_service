@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .card-select {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .card-select:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-select.selected {
+            border: 2px solid #0d6efd;
+            background-color: #f0f8ff;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .summary-card {
+            background-color: #f8f9fa;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Coverage</title>
+</head>
+<script>
+    function handleCoverageChange() {
+        const coverage = document.querySelector('input[name="coverageType"]:checked').value;
+
+        document.querySelectorAll('input[name="area"]').forEach(el => {
+            if (coverage === "ANNUAL" && el.dataset.annual === "false") {
+                el.disabled = true;
+                el.closest("label").classList.add("opacity-50");
+            } else {
+                el.disabled = false;
+                el.closest("label").classList.remove("opacity-50");
+            }
+        });
+    }
+
+    function highlight(name) {
+        document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
+            el.closest("label").classList.remove("selected");
+        });
+
+        const selected = document.querySelector(`input[name="${name}"]:checked`);
+        if (selected) selected.closest("label").classList.add("selected");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        document.querySelectorAll('input[name="coverageType"]').forEach(el => {
+            el.addEventListener("change", () => {
+                handleCoverageChange();
+                highlight("coverageType");
+            });
+        });
+
+        document.querySelectorAll('input[name="area"]').forEach(el => {
+            el.addEventListener("change", () => highlight("area"));
+        });
+
+        handleCoverageChange();
+        highlight("coverageType");
+        highlight("area");
+    });
+        setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.style.display = 'none';
+    }, 4000);
+</script>
+
+<body class="container mt-5">
+<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <span th:text="${successMessage}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<h2 class="mb-4">Step 1: Choose Coverage</h2>
+
+<form action="/plan" method="post">
+
+    <!-- COVERAGE -->
+    <h5>Coverage</h5>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label class="card p-3 shadow card-select">
+                <input type="radio" name="coverageType" value="SINGLE" checked>
+                <b>Single Trip</b>
+                <small>One-time travel coverage</small>
+            </label>
+        </div>
+        <div class="col-md-6">
+            <label class="card p-3 shadow card-select">
+                <input type="radio" name="coverageType" value="ANNUAL">
+                <b>Annual</b>
+                <small>Unlimited trips for 1 year</small>
+            </label>
+        </div>
+    </div>
+
+    <!-- AREA -->
+    <h5>Area</h5>
+    <div class="row mb-4">
+
+        <div class="col-md-6 mt-3" th:each="area : ${areas}">
+            <label class="card p-3 shadow card-select">
+                <input type="radio"
+                       name="area"
+                       th:value="${area.code}"
+                       th:data-annual="${area.supportsAnnual}">
+
+                <b th:text="${area.name}"></b>
+                <p th:text="${area.description}"></p>
+
+            </label>
+        </div>
+
+    </div>
+
+    <!-- JOURNEY TIME -->
+    <h5>Journey Time</h5>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label>Start Date</label>
+            <input type="date" name="startDate" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+            <label>End Date</label>
+            <input type="date" name="endDate" class="form-control" required>
+        </div>
+    </div>
+
+    <button class="btn btn-primary">Next</button>
+
+</form>
+
+</body>
+</html>
